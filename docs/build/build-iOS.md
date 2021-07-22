@@ -18,6 +18,14 @@ There is [OpenSSL for iPhone](https://github.com/x2on/OpenSSL-for-iPhone) projec
 Results (both libraries and headers) will be placed in bin/&lt;SDK_VERSION&gt;-&lt;ARCH&gt;.sdk directory (for example, *bin/iPhoneOS11.2-arm64.sdk*). We assume you set **IOS_OPENSSL** variable to this path (e.g. `export IOS_OPENSSL="/Users/johndoe/sources/OpenSSL-for-iPhone/bin/iPhoneOS11.2-arm64.sdk"`). 
 
 ## Building SRT code
+For iOS you can either build xcframework with simple automated script or run `condfigure` with required parameters for iOS toolchange
+
+### Building xcframework file containing static library 
+You can create static library for multiple platforms (iOS, iOS simulator, tvOS, tvOS simulator) with one script.
+Run `scripts/build-ios.sh` to create libsrt.xcframrwork. By default, it created in build_ios subdirectory, you can change it by providing `-out <path_to_xcframework>` parameter. You can also specify platforms to build library for with `-platforms` parameter, e.g `-platforms OS,SIMULATOR,TV,TV_SIMULATOR`. There are some other options, run `build_ios.sh -h` to see detailed description. 
+
+ 
+### Building library with toolchain
 Now you can build SRT providing path to OpenSSL library and toolchain file for iOS
 
 ```
@@ -36,6 +44,15 @@ Optionally you may add following iOS-specifc settings to configure:
 Note that resulting .dylib file has install path @executable_path/Frameworks/libsrt.1.dylib, so if you need to place it in some other place with your application, you may change it with *install_name_tool* command: ``install_name_tool -id "<install_path>" <library_file>``, for example ``install_name_tool -id "@executable_path/Frameworks/libsrt.1.3.0.dylib" libsrt.1.3.0.dylib``
 
 ## Adding to Xcode project
+### Using xcframework
+You can either simply drop xcframework file to your project, or add plus sign in project settings in General - Frameworks and Libraries section. Notice that framework alreay includes headers, you can simply add import in Objective-C header
+```
+#import <srt.h>
+```
+If you're using Swift, we recommend to write Objective-C wrapper for SRT and use bridging header to join it with Swift.
+
+### Using dynamic library
+
 In Xcode project settings in General tab, add libsrt to **Linked Frameworks and Libraries** section - click Plus sign, then click "Add Other" and find libsrt.1.dylib
 
 Click plus sign in **Embedded binaries** section and choose Frameworks/libsrt.1.dylib
